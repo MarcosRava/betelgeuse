@@ -1,12 +1,9 @@
 'use strict';
 
-import Promise from 'bluebird';
-
-const Ajv = require('ajv');
-const ajv = new Ajv();
+import Ajv from 'ajv';
+const ajv = new Ajv({allErrors: true});
 
 const applyEntityConstructor = function applyEntityConstructor(field, data) {
-//       if (!data) return;
 
   const Type = field.ref;
 
@@ -14,9 +11,9 @@ const applyEntityConstructor = function applyEntityConstructor(field, data) {
 //        return field.builder(data, Type);
 //      }
 
-//      if (Array.isArray(data)) {
-//        return data.map(instance => new Type(instance));
-//      }
+  if (field.type === 'array' && Array.isArray(data)) {
+    return data.map(instance => new Type(instance));
+  }
 
   return new Type(data);
 };
@@ -65,6 +62,9 @@ class Betelgeuse {
       if (typeof this.schema[field] === 'string') {
         this.schema[field] = {type: this.schema[field]};
       }
+      else if (typeof this.schema[field].items === 'string') {
+        this.schema[field].items = {type: this.schema[field].items};
+      }
     }
   }
 
@@ -77,7 +77,13 @@ class Betelgeuse {
     for (let field in  this.schema) {
       let attr = this.schema[field];
       if (attr.ref) {
-        validateSchema[field] = attr.ref.validateSchema;
+        if (attr.type === 'array') {
+          validateSchema[field] = attr;
+          validateSchema[field].items = [attr.ref.validateSchema];
+          delete validateSchema[field].ref;
+        } else {
+          validateSchema[field] = attr.ref.validateSchema;
+        }
       } else {
         validateSchema[field] = attr;
       }
@@ -85,6 +91,8 @@ class Betelgeuse {
     const property = {
       enumerable: false,
       value: {
+        name: this.name,
+        type: 'object',
         properties: validateSchema
       },
       writable: false
@@ -99,7 +107,7 @@ class Betelgeuse {
 
   validate() {
     const ajValidate = ajv.compile(this.constructor.validateSchema);
-    const valid = ajValidate(this.data);
+    const valid = ajValidate(JSON.parse(JSON.stringify(this.data)));
     if (!valid) {
       let errors = [];
       for (let i in ajValidate.errors) {
@@ -136,12 +144,19 @@ Betelgeuse.Types = {
   boolean: 'boolean',
   string: 'string',
   array: 'array',
-  ocject: 'object',
-  arrayOf: (Type) => {
-    return {
-      type: 'array',
-      ref: Type
+  object: 'object',
+  arrayOf: function arrayOf(Type) {
+    let schema = {
+      type: 'array'
     };
+    if (Type.prototype instanceof Betelgeuse) {
+      schema.ref= Type;
+    } else if (typeof Type === 'function') {
+      schema.items = Type.name ? Type.name.toLowerCase() : Type.toString();
+    } else if (typeof Type === 'string') {
+      schema.items = Type;
+    }
+    return schema;
   }
 };
 

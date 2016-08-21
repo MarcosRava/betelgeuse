@@ -29,10 +29,10 @@ describe('Betelgeuse', () => {
       expect(towel.foo).to.be.undefined;
     });
     it('Should add children instance',  () => {
-      let towel = {id:6, color:'ed', weight: 0.56};
-      let data = {id: 1, name: 'Arthur Dent', towel: towel};
+      let towel = {id:6, color:'red', weight: 0.56};
+      let data = {id: 1, name: 'Arthur Dent', towels: [towel]};
       let hitchhiker = new Hitchhiker(data);
-      expect(hitchhiker.towel).to.be.an.instanceOf(Towel);
+      expect(hitchhiker.towels[0]).to.be.an.instanceOf(Towel);
     });
   });
 

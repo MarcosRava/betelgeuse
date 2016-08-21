@@ -1,7 +1,6 @@
 import Betelgeuse, { Types } from 'src/Betelgeuse';
 
 export default class Towel extends Betelgeuse {
-  //start-non-standard
   static schema = {
     id: Types.integer,
     color: {
@@ -10,12 +9,4 @@ export default class Towel extends Betelgeuse {
     },
     weight: Types.number
   }
-
-  static presenter = {
-    properties: {
-      weight: "w"
-    },
-    exclude: ['id']
-  }
-  //end-non-standard
 }
