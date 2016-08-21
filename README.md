@@ -18,7 +18,7 @@ npm install betelgeuse
 
 ```js
 
-import Betelgeuse, { Types } from 'src/Betelgeuse';
+import Betelgeuse, { Types } from 'betelgeuse';
 
 class Towel extends Betelgeuse {
   static schema = {
@@ -35,12 +35,14 @@ let towel = new Towel({id:6, color:'red'});
 const errors = towel.validate();
 console.error(errors);
 // undefined
-const fields = towel.fields;
+const fields = towel.fields();
 console.log(fields);
 // {id:6, color:'red'}
+```
 
-// with errors
+with errors
 
+```js
 let towel2 = new Towel({id:6, color:'ed'});
 const errors = towel2.validate();
 //[ { message: 'should NOT be shorter than 3 characters', field: 'color' } ]
