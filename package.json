@@ -1,8 +1,8 @@
 {
-  "name": "vogon",
+  "name": "betelgeuse",
   "version": "0.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/Betelgeuse.js",
   "scripts": {
     "start": "babel-node src/Betelgeuse.js",
     "simple-test": "mocha --compilers js:babel-core/register",
