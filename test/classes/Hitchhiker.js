@@ -1,7 +1,8 @@
-import Betelgeuse, { Types } from '../../src/Betelgeuse';
-import Towel from './Towel';
+import Betelgeuse, { Types } from 'src/Betelgeuse';
+import Towel from 'test/classes/Towel';
 
 export default class Hitchhiker extends Betelgeuse {
+  //start-non-standard
   static schema = {
     id: Types.integer,
     name: {
@@ -11,6 +12,6 @@ export default class Hitchhiker extends Betelgeuse {
     towel: {
       ref: Towel
     }
-
   }
+  //end-non-standard
 }
