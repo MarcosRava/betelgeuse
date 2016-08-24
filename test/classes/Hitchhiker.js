@@ -1,5 +1,6 @@
-import Betelgeuse, { Types } from 'src/Betelgeuse';
-import Towel from 'test/classes/Towel';
+import Betelgeuse, { Types } from 'Betelgeuse';
+import Towel from './Towel';
+import Guide from './Guide';
 
 export default class Hitchhiker extends Betelgeuse {
   static schema = {
@@ -9,6 +10,9 @@ export default class Hitchhiker extends Betelgeuse {
       minLength: 3
     },
     tags: Types.arrayOf(Types.string),
+    guide: {
+      ref: Guide
+    },
     towels: Types.arrayOf(Towel)
   }
 }

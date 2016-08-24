@@ -2,6 +2,8 @@
 
 ## Betelgeuse is a model structure based on JSON schema and [Ajv](https://github.com/epoberezkin/ajv) validations
 
+![work: in progress](https://img.shields.io/badge/work-in%20progress-orange.svg)
+
 ### Proposal:
 
 * Model structure to client and server sides
@@ -35,7 +37,7 @@ let towel = new Towel({id:6, color:'red'});
 const errors = towel.validate();
 console.error(errors);
 // undefined
-const fields = towel.fields();
+const fields = towel.fetch();
 console.log(fields);
 // {id:6, color:'red'}
 ```

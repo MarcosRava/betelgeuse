@@ -1,63 +1,41 @@
-'use strict';
-
 import Ajv from 'ajv';
+import { bindInstances, generateValidateSchema } from './helpers';
+
 const ajv = new Ajv({allErrors: true});
 
-const applyEntityConstructor = function applyEntityConstructor(field, data) {
+export default class Betelgeuse {
 
-  const Type = field.ref;
+  static get validateSchema () {
 
-//      if(field.builder) {
-//        return field.builder(data, Type);
-//      }
+    if (this._validateSchema) {
+      return this._validateSchema;
+    }
 
-  if (field.type === 'array' && Array.isArray(data)) {
-    return data.map(instance => new Type(instance));
+    this.normalizeSchema();
+
+    const validateSchema = generateValidateSchema(this.schema);
+
+    const property = {
+      enumerable: false,
+      value: {
+        name: this.name,
+        type: 'object',
+        properties: validateSchema
+      },
+      writable: false
+    };
+
+    Object.defineProperty(this, '_validateSchema', property);
+
+    return this._validateSchema;
   }
 
-  return new Type(data);
-};
+  static normalizeSchema() {
 
-const createGetterAndSetter = function createGetterAndSetter(instance, field) {
-  return {
-    set: function (value){
-      if(instance.data[field] !== value) {
-        instance.data[field] = value;
-        return instance._validate();
-      }
-    },
-    get: function (){ return instance.data[field]; },
-    enumerable: true
-  };
-};
+    if (this._validateSchema) {
+      return;
+    }
 
-class Betelgeuse {
-
-  constructor(data) {
-
-    this.constructor.parseSchema();
-
-    Object.defineProperty(this, 'schema', {
-      value: this.constructor.schema,
-      enumerable: false,
-      writable: false
-    });
-
-    Object.defineProperty(this, 'childrenEntities', {
-      value: Object.keys(this.constructor.schema)
-        .filter((field) => !!this.constructor.schema[field].ref),
-      enumerable: false,
-      writable: false
-    });
-
-    Object.defineProperty(this, 'data', {
-      value: this._mergeDefault(data || {}),
-      enumerable: false
-    });
-
-  }
-
-  static parseSchema() {
     for (let field in this.schema) {
       if (typeof this.schema[field] === 'string') {
         this.schema[field] = {type: this.schema[field]};
@@ -68,37 +46,21 @@ class Betelgeuse {
     }
   }
 
-  static get validateSchema () {
-    if (this._validateSchema) {
-      return this._validateSchema;
-    }
-    this.parseSchema();
-    let validateSchema = {};
-    for (let field in  this.schema) {
-      let attr = this.schema[field];
-      if (attr.ref) {
-        if (attr.type === 'array') {
-          validateSchema[field] = attr;
-          validateSchema[field].items = [attr.ref.validateSchema];
-          delete validateSchema[field].ref;
-        } else {
-          validateSchema[field] = attr.ref.validateSchema;
-        }
-      } else {
-        validateSchema[field] = attr;
-      }
-    }
-    const property = {
+  constructor(data) {
+
+    this.constructor.normalizeSchema();
+
+    Object.defineProperty(this, 'schema', {
+      value: this.constructor.schema,
       enumerable: false,
-      value: {
-        name: this.name,
-        type: 'object',
-        properties: validateSchema
-      },
       writable: false
-    };
-    Object.defineProperty(this, '_validateSchema', property);
-    return this._validateSchema;
+    });
+
+    Object.defineProperty(this, 'data', {
+      value: bindInstances.bind(this)(data || {}),
+      enumerable: false
+    });
+
   }
 
   fetch() {
@@ -121,24 +83,9 @@ class Betelgeuse {
     }
 
   }
-
-  _mergeDefault(data) {
-    const newData = {};
-    for(let field in this.schema){
-
-      newData[field] = data[field] || this.schema[field].defaultValue;
-
-      if (this.schema[field].ref) {
-        newData[field] = applyEntityConstructor(this.schema[field], newData[field]);
-      }
-
-      Object.defineProperty(this, field, createGetterAndSetter(this, field));
-    }
-    return newData;
-  }
 }
 
-Betelgeuse.Types = {
+export const Types = {
   integer: 'integer',
   number: 'number',
   boolean: 'boolean',
@@ -157,8 +104,15 @@ Betelgeuse.Types = {
       schema.items = Type;
     }
     return schema;
+  },
+  attributeOf: function attributeOf(Type, attr) {
+    if (!Type.prototype instanceof Betelgeuse) {
+      throw new Error('Must be an instance of Betelguese');
+    }
+    let schema = {};
+    schema[attr] = Type.schema[attr];
+    return schema;
   }
 };
 
-export const Types = Betelgeuse.Types;
-export default Betelgeuse;
+Betelgeuse.Types = Types;
