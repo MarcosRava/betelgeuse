@@ -6,9 +6,18 @@ Object.defineProperty(exports, "__esModule", {
 exports.bindInstances = bindInstances;
 exports.generateValidateSchema = generateValidateSchema;
 exports.clone = clone;
+
+var _extend = require('extend');
+
+var _extend2 = _interopRequireDefault(_extend);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function bindInstances(data) {
   var newData = {};
-  for (var field in this.schema) {
+  var field = void 0;
+
+  for (field in this.schema) {
 
     newData[field] = data[field] || this.schema[field].defaultValue;
 
@@ -25,10 +34,10 @@ function applyEntityConstructor(field, data) {
 
   var Type = field.ref;
 
-  if (field.type === 'array' && Array.isArray(data)) {
-    return data.map(function (instance) {
+  if (field.type === 'array') {
+    return Array.isArray(data) ? data.map(function (instance) {
       return new Type(instance);
-    });
+    }) : undefined;
   }
 
   return new Type(data);
@@ -51,13 +60,12 @@ function createGetterAndSetter(instance, field) {
 
 function generateValidateSchema(schemaObj) {
 
-  var schema = clone(schemaObj);
+  var schema = (0, _extend2.default)(true, {}, schemaObj);
   var validateSchema = {};
   var field = void 0;
 
   for (field in schema) {
     var attr = schema[field];
-
     if (attr.ref) {
       if (attr.type === 'array') {
         validateSchema[field] = attr;

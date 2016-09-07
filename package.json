@@ -52,6 +52,7 @@
   },
   "dependencies": {
     "ajv": "^4.5.0",
-    "cross-env": "^2.0.1"
+    "cross-env": "^2.0.1",
+    "extend": "^3.0.0"
   }
 }

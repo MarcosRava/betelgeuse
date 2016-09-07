@@ -1,6 +1,10 @@
+import extend from 'extend';
+
 export function bindInstances(data) {
   const newData = {};
-  for(let field in this.schema){
+  let field;
+
+  for(field in this.schema){
 
     newData[field] = data[field] || this.schema[field].defaultValue;
 
@@ -17,8 +21,8 @@ function applyEntityConstructor(field, data) {
 
   const Type = field.ref;
 
-  if (field.type === 'array' && Array.isArray(data)) {
-    return data.map(instance => new Type(instance));
+  if (field.type === 'array') {
+    return Array.isArray(data) ? data.map(instance => new Type(instance)) : undefined;
   }
 
   return new Type(data);
@@ -39,13 +43,12 @@ function createGetterAndSetter(instance, field) {
 
 export function generateValidateSchema(schemaObj) {
 
-  const schema = clone(schemaObj);
+  const schema = extend(true, {}, schemaObj);
   let validateSchema = {};
   let field;
 
   for (field in  schema) {
     let attr = schema[field];
-
     if (attr.ref) {
       if (attr.type === 'array') {
         validateSchema[field] = attr;

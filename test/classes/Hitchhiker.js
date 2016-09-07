@@ -10,6 +10,7 @@ export default class Hitchhiker extends Betelgeuse {
       minLength: 3
     },
     tags: Types.arrayOf(Types.string),
+    hairStyle: Types.enumValues('short', 'long', 'bald'),
     guide: {
       ref: Guide
     },

@@ -13,6 +13,10 @@ var _ajv2 = _interopRequireDefault(_ajv);
 
 var _helpers = require('./helpers');
 
+var _Types2 = require('./Types');
+
+var _Types3 = _interopRequireDefault(_Types2);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -27,8 +31,8 @@ var Betelgeuse = function () {
       if (this._validateSchema) {
         return;
       }
-
-      for (var field in this.schema) {
+      var field = void 0;
+      for (field in this.schema) {
         if (typeof this.schema[field] === 'string') {
           this.schema[field] = { type: this.schema[field] };
         } else if (typeof this.schema[field].items === 'string') {
@@ -90,10 +94,11 @@ var Betelgeuse = function () {
     key: 'validate',
     value: function validate() {
       var ajValidate = ajv.compile(this.constructor.validateSchema);
-      var valid = ajValidate(JSON.parse(JSON.stringify(this.data)));
+      var valid = ajValidate((0, _helpers.clone)(this.data));
       if (!valid) {
         var errors = [];
-        for (var i in ajValidate.errors) {
+        var i = void 0;
+        for (i in ajValidate.errors) {
           var error = ajValidate.errors[i];
           errors.push({
             message: error.message,
@@ -109,34 +114,6 @@ var Betelgeuse = function () {
 }();
 
 exports.default = Betelgeuse;
-var Types = exports.Types = {
-  integer: 'integer',
-  number: 'number',
-  boolean: 'boolean',
-  string: 'string',
-  array: 'array',
-  object: 'object',
-  arrayOf: function arrayOf(Type) {
-    var schema = {
-      type: 'array'
-    };
-    if (Type.prototype instanceof Betelgeuse) {
-      schema.ref = Type;
-    } else if (typeof Type === 'function') {
-      schema.items = Type.name ? Type.name.toLowerCase() : Type.toString();
-    } else if (typeof Type === 'string') {
-      schema.items = Type;
-    }
-    return schema;
-  },
-  attributeOf: function attributeOf(Type, attr) {
-    if (!Type.prototype instanceof Betelgeuse) {
-      throw new Error('Must be an instance of Betelguese');
-    }
-    var schema = {};
-    schema[attr] = Type.schema[attr];
-    return schema;
-  }
-};
+var Types = exports.Types = new _Types3.default(Betelgeuse);
 
 Betelgeuse.Types = Types;
