@@ -1,4 +1,4 @@
-import Betelgeuse, { Types } from 'Betelgeuse';
+import Betelgeuse, { Types } from '../../src/Betelgeuse';
 
 export default class Guide extends Betelgeuse {
   static schema = {
