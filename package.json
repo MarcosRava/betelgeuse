@@ -7,14 +7,14 @@
     "node": "~6.4.x"
   },
   "scripts": {
-    "dev": "cross-env NODE_PATH=./src nodemon --exec 'npm run lint && npm run test-mocha' -i build ",
-    "test": "npm run lint && npm run build && cross-env NODE_PATH=./build npm run test-mocha",
+    "dev": "cross-env NODE_ENV=test nodemon --exec 'npm run lint && npm run test-mocha' -i build ",
+    "test": "npm run lint && npm run build && npm run test-mocha",
     "test-mocha": "mocha --compilers js:babel-register",
-    "test-es6": "cross-env NODE_PATH=./src npm run test-mocha",
+    "test-es6": "cross-env NODE_ENV=test npm run test-mocha",
     "postinstall": "npm run check-dependencies",
     "check-dependencies": "nsp check",
     "lint": "eslint src test",
-    "build": "mkdir -p build && cross-env NODE_PATH=./build babel src --out-dir build"
+    "build": "mkdir -p build && babel src --out-dir build"
   },
   "config": {
     "pre-git": {

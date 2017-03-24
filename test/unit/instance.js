@@ -1,9 +1,9 @@
 'use strict';
 
 import expect from 'expect.js';
-import Towel from '../test/classes/Towel';
-import Guide from '../test/classes/Guide';
-import Hitchhiker from '../test/classes/Hitchhiker';
+import Towel from '../classes/Towel';
+import Guide from '../classes/Guide';
+import Hitchhiker from '../classes/Hitchhiker';
 
 
 describe('Betelgeuse - Instance', function () {

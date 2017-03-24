@@ -3,7 +3,7 @@
 import expect from 'expect.js';
 //import Towel from '../test/classes/Towel';
 //import Guide from '../test/classes/Guide';
-import Hitchhiker from '../test/classes/Hitchhiker';
+import Hitchhiker from '../classes/Hitchhiker';
 
 
 describe('Betelgeuse - Functions', function () {

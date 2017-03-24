@@ -1,4 +1,4 @@
-import Betelgeuse, { Types } from 'Betelgeuse';
+import Betelgeuse, { Types } from '../../src/Betelgeuse';
 import Towel from './Towel';
 import Guide from './Guide';
 
