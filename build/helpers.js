@@ -13,25 +13,7 @@ var _extend2 = _interopRequireDefault(_extend);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function bindInstances(data) {
-  var newData = {};
-  var field = void 0;
-
-  for (field in this.schema) {
-
-    newData[field] = data[field] || this.schema[field].defaultValue;
-
-    if (this.schema[field].ref) {
-      newData[field] = applyEntityConstructor(this.schema[field], newData[field]);
-    }
-
-    Object.defineProperty(this, field, createGetterAndSetter(this, field));
-  }
-  return newData;
-}
-
 function applyEntityConstructor(field, data) {
-
   var Type = field.ref;
 
   if (field.type === 'array') {
@@ -41,14 +23,14 @@ function applyEntityConstructor(field, data) {
   }
 
   return new Type(data);
-};
+}
 
 function createGetterAndSetter(instance, field) {
   return {
     set: function set(value) {
       if (instance.data[field] !== value) {
-        instance.data[field] = value;
-        return instance._validate();
+        instance.data[field] = value; //eslint-disable-line
+        // instance._validate();
       }
     },
     get: function get() {
@@ -56,15 +38,30 @@ function createGetterAndSetter(instance, field) {
     },
     enumerable: true
   };
-};
+}
+
+function bindInstances(data) {
+  var _this = this;
+
+  var newData = {};
+
+  Object.keys(this.schema).forEach(function (field) {
+    newData[field] = data[field] || _this.schema[field].defaultValue;
+
+    if (_this.schema[field].ref) {
+      newData[field] = applyEntityConstructor(_this.schema[field], newData[field]);
+    }
+
+    Object.defineProperty(_this, field, createGetterAndSetter(_this, field));
+  });
+  return newData;
+}
 
 function generateValidateSchema(schemaObj) {
-
   var schema = (0, _extend2.default)(true, {}, schemaObj);
   var validateSchema = {};
-  var field = void 0;
 
-  for (field in schema) {
+  Object.keys(schema).forEach(function (field) {
     var attr = schema[field];
     if (attr.ref) {
       if (attr.type === 'array') {
@@ -77,7 +74,7 @@ function generateValidateSchema(schemaObj) {
     } else {
       validateSchema[field] = attr;
     }
-  }
+  });
   return validateSchema;
 }
 

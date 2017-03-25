@@ -1,24 +1,6 @@
 import extend from 'extend';
 
-export function bindInstances(data) {
-  const newData = {};
-  let field;
-
-  for(field in this.schema){
-
-    newData[field] = data[field] || this.schema[field].defaultValue;
-
-    if (this.schema[field].ref) {
-      newData[field] = applyEntityConstructor(this.schema[field], newData[field]);
-    }
-
-    Object.defineProperty(this, field, createGetterAndSetter(this, field));
-  }
-  return newData;
-}
-
 function applyEntityConstructor(field, data) {
-
   const Type = field.ref;
 
   if (field.type === 'array') {
@@ -26,43 +8,54 @@ function applyEntityConstructor(field, data) {
   }
 
   return new Type(data);
-};
+}
 
 function createGetterAndSetter(instance, field) {
   return {
-    set: function (value){
-      if(instance.data[field] !== value) {
-        instance.data[field] = value;
-        return instance._validate();
+    set: (value) => {
+      if (instance.data[field] !== value) {
+        instance.data[field] = value; //eslint-disable-line
+        // instance._validate();
       }
     },
-    get: function (){ return instance.data[field]; },
-    enumerable: true
+    get: () => instance.data[field],
+    enumerable: true,
   };
-};
+}
+
+export function bindInstances(data) {
+  const newData = {};
+
+  Object.keys(this.schema).forEach((field) => {
+    newData[field] = data[field] || this.schema[field].defaultValue;
+
+    if (this.schema[field].ref) {
+      newData[field] = applyEntityConstructor(this.schema[field], newData[field]);
+    }
+
+    Object.defineProperty(this, field, createGetterAndSetter(this, field));
+  });
+  return newData;
+}
 
 export function generateValidateSchema(schemaObj) {
-
   const schema = extend(true, {}, schemaObj);
-  let validateSchema = {};
-  let field;
+  const validateSchema = {};
 
-  for (field in  schema) {
-    let attr = schema[field];
+  Object.keys(schema).forEach((field) => {
+    const attr = schema[field];
     if (attr.ref) {
       if (attr.type === 'array') {
         validateSchema[field] = attr;
         validateSchema[field].items = [attr.ref.validateSchema];
         delete validateSchema[field].ref;
-      }
-      else {
+      } else {
         validateSchema[field] = attr.ref.validateSchema;
       }
-    }
-    else {
+    } else {
       validateSchema[field] = attr;
     }
-  }
+  });
   return validateSchema;
 }
 
@@ -71,9 +64,7 @@ export function clone(obj) {
 }
 
 export default {
-  bindInstances: bindInstances,
-  generateValidateSchema: generateValidateSchema,
-  clone: clone
+  bindInstances,
+  generateValidateSchema,
+  clone,
 };
-
-

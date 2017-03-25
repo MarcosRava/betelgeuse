@@ -1,35 +1,30 @@
-'use strict';
-
 import expect from 'expect.js';
-//import Towel from '../test/classes/Towel';
-//import Guide from '../test/classes/Guide';
 import Hitchhiker from '../classes/Hitchhiker';
 
 
 describe('Betelgeuse - Functions', function () {
-
   beforeEach(function () {
     this.towelData = {
-      id:6,
-      color:'red'
+      id: 6,
+      color: 'red',
     };
 
     this.guideData = {
-      id:6,
-      model:'GPP'
+      id: 6,
+      model: 'GPP',
     };
 
     this.hitchhikerData = {
       id: 42,
       name: 'Arthur Dent',
       tags: [
-        'human'
+        'human',
       ],
       towels: [
-        this.towelData
+        this.towelData,
       ],
-      guide: this.guideData
-    }
+      guide: this.guideData,
+    };
     this.hitchhiker = new Hitchhiker(this.hitchhikerData);
   });
 
@@ -44,5 +39,4 @@ describe('Betelgeuse - Functions', function () {
       expect(this.hitchhiker.fetch).to.be.a('function');
     });
   });
-
 });

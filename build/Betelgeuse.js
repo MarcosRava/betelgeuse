@@ -24,50 +24,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var ajv = new _ajv2.default({ allErrors: true });
 
 var Betelgeuse = function () {
-  _createClass(Betelgeuse, null, [{
-    key: 'normalizeSchema',
-    value: function normalizeSchema() {
-
-      if (this._validateSchema) {
-        return;
-      }
-      var field = void 0;
-      for (field in this.schema) {
-        if (typeof this.schema[field] === 'string') {
-          this.schema[field] = { type: this.schema[field] };
-        } else if (typeof this.schema[field].items === 'string') {
-          this.schema[field].items = { type: this.schema[field].items };
-        }
-      }
-    }
-  }, {
-    key: 'validateSchema',
-    get: function get() {
-
-      if (this._validateSchema) {
-        return this._validateSchema;
-      }
-
-      this.normalizeSchema();
-
-      var validateSchema = (0, _helpers.generateValidateSchema)(this.schema);
-
-      var property = {
-        enumerable: false,
-        value: {
-          name: this.name,
-          type: 'object',
-          properties: validateSchema
-        },
-        writable: false
-      };
-
-      Object.defineProperty(this, '_validateSchema', property);
-
-      return this._validateSchema;
-    }
-  }]);
-
   function Betelgeuse(data) {
     _classCallCheck(this, Betelgeuse);
 
@@ -97,16 +53,40 @@ var Betelgeuse = function () {
       var valid = ajValidate((0, _helpers.clone)(this.data));
       if (!valid) {
         var errors = [];
-        var i = void 0;
-        for (i in ajValidate.errors) {
-          var error = ajValidate.errors[i];
+        ajValidate.errors.forEach(function (error) {
           errors.push({
             message: error.message,
             field: error.dataPath.substr(1)
           });
-        }
-        return errors;
+        });
+        return Promise.reject(errors);
       }
+      return Promise.resolve();
+    }
+  }], [{
+    key: 'validateSchema',
+    get: function get() {
+      if (this.validateSchemaSingeton) {
+        return this.validateSchemaSingeton;
+      }
+
+      this.normalizeSchema();
+
+      var properties = (0, _helpers.generateValidateSchema)(this.schema);
+
+      var property = {
+        enumerable: false,
+        value: {
+          name: this.name,
+          type: 'object',
+          properties: properties
+        },
+        writable: false
+      };
+
+      Object.defineProperty(this, 'validateSchemaSingeton', property);
+
+      return this.validateSchemaSingeton;
     }
   }]);
 
@@ -114,6 +94,23 @@ var Betelgeuse = function () {
 }();
 
 exports.default = Betelgeuse;
+
+
+Betelgeuse.normalizeSchema = function normalizeSchema() {
+  var _this = this;
+
+  if (this.validateSchemaSingeton) {
+    return;
+  }
+  Object.keys(this.schema).forEach(function (field) {
+    if (typeof _this.schema[field] === 'string') {
+      _this.schema[field] = { type: _this.schema[field] };
+    } else if (typeof _this.schema[field].items === 'string') {
+      _this.schema[field].items = { type: _this.schema[field].items };
+    }
+  });
+};
+
 var Types = exports.Types = new _Types3.default(Betelgeuse);
 
 Betelgeuse.Types = Types;
